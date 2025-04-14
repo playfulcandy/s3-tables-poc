@@ -1,5 +1,6 @@
 package com.github.poc.s3tables.investments;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -16,6 +17,7 @@ import static com.github.poc.s3tables.investments.utils.DatasetCreator.createDat
 import static com.github.poc.s3tables.investments.utils.RandomUtils.getRandomSubset;
 import static com.github.poc.s3tables.investments.utils.SparkUtils.startSession;
 
+@Slf4j
 public class BulkCreateRandomHoldings {
     public static void main(String[] args) throws NoSuchTableException {
         SparkSession sparkSession = startSession("s3Test");
@@ -29,6 +31,9 @@ public class BulkCreateRandomHoldings {
                     username
                 FROM s3tablesbucket.investments.`accounts`
         """);
+
+        log.info("S3 Table POC - Reading the tables finished");
+
         List<String> usernameList = usernames.collectAsList()
                 .stream()
                 .map(row -> row.getString(row.fieldIndex("username")))
@@ -38,7 +43,11 @@ public class BulkCreateRandomHoldings {
                 .map(row -> row.getString(row.fieldIndex("stock")))
                 .toList();
 
+        log.info("S3 Table POC - Transformation of datasets finished");
+
         List<Row> holdingsList = new ArrayList<>(usernameList.size() * 25);
+
+        log.info("S3 Table POC - Allocating array of 25 million finished");
 
         for (String holder : usernameList) {
             Set<String> selected = getRandomSubset(25, stockList);

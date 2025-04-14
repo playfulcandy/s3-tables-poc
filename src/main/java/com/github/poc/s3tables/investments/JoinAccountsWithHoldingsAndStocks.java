@@ -14,7 +14,7 @@ public class JoinAccountsWithHoldingsAndStocks {
     public static void main(String[] args) throws NoSuchTableException {
         SparkSession spark = startSession("s3Test");
 
-        log.info("S3 Table - Reads with Left Join Started");
+        log.info("S3 Table POC - Reads with Left Join Started");
 
         Dataset<Row> results = spark.sql("""
                SELECT
@@ -28,14 +28,14 @@ public class JoinAccountsWithHoldingsAndStocks {
                ON stockname=name
         """);
 
-        log.info("S3 Table - Reads with Left Join Complete");
+        log.info("S3 Table POC - Reads with Left Join Complete");
 
         results = results.withColumn("report_time", current_timestamp());
 
-        log.info("S3 Table - Appending a million rows started");
+        log.info("S3 Table POC - Appending twenty million rows started");
 
         results.writeTo("s3tablesbucket.investments.reports").append();
 
-        log.info("S3 Table - Appending a million rows complete");
+        log.info("S3 Table POC - Appending twenty million rows complete");
     }
 }
