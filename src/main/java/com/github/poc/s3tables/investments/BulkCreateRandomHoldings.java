@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.github.poc.s3tables.investments.utils.DatasetCreator.createDataset;
 import static com.github.poc.s3tables.investments.utils.RandomUtils.getRandomSubset;
 import static com.github.poc.s3tables.investments.utils.SparkUtils.startSession;
 
 @Slf4j
 public class BulkCreateRandomHoldings {
+    private static final int MAX_DATASET_SIZE = 1000000;
     public static void main(String[] args) throws NoSuchTableException {
         SparkSession sparkSession = startSession("s3Test");
         Dataset<Row> stocks = sparkSession.sql("""
@@ -60,8 +60,22 @@ public class BulkCreateRandomHoldings {
             }
         }
 
-        log.info("S3 Table POC - Populating 25 million sized array finished");
+        log.info("S3 Table POC - Attempting to write {} records to table", holdingsList.size());
 
+        for (int i = 0; i <= holdingsList.size(); i+= MAX_DATASET_SIZE) {
+            log.info("S3 Table POC - {} records written so far, {} records remaining",
+                    i, holdingsList.size() - i);
+            int endIndex = Math.min(i + MAX_DATASET_SIZE, holdingsList.size());
+            writeToHoldingsTable(sparkSession, holdingsList.subList(i, endIndex));
+        }
+
+        log.info("S3 Table POC - Attempting to write {} records to table", holdingsList.size());
+    }
+
+    private static void writeToHoldingsTable(
+            SparkSession sparkSession,
+            List<Row> holdingsList
+    ) throws NoSuchTableException {
         StructType holdingSchema = new StructType()
                 .add("holder", DataTypes.StringType)
                 .add("stockname", DataTypes.StringType)
@@ -71,14 +85,11 @@ public class BulkCreateRandomHoldings {
                 holdingsList, holdingSchema
         );
 
-        log.info("S3 Table POC - Creating a dataset of 25 million finished");
+        log.info("S3 Table POC - Created Dataset of size {}", holdingsList.size());
 
         sparkSession.sql("DELETE FROM s3tablesbucket.investments.`holdings`");
-        log.info("S3 Table POC - Writing 25 million started");
-        holdings.repartition(100)
-                .writeTo("s3tablesbucket.investments.`holdings`")
-                .option("batchsize", "100000")
-                .append();
-        log.info("S3 Table POC - Writing 25 million finished");
+        log.info("S3 Table POC - Writing {} records started", holdingsList.size());
+        holdings.writeTo("s3tablesbucket.investments.`holdings`").append();
+        log.info("S3 Table POC - Writing {} records finished", holdingsList.size());
     }
 }
