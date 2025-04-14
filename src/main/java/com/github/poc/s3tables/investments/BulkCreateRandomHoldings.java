@@ -59,6 +59,8 @@ public class BulkCreateRandomHoldings {
                 );
             }
         }
+        log.info("Clearing out the holdings table");
+        sparkSession.sql("DELETE FROM s3tablesbucket.investments.`holdings`");
 
         log.info("S3 Table POC - Attempting to write {} records to table", holdingsList.size());
 
@@ -85,9 +87,6 @@ public class BulkCreateRandomHoldings {
                 holdingsList, holdingSchema
         );
 
-        log.info("S3 Table POC - Created Dataset of size {}", holdingsList.size());
-
-        sparkSession.sql("DELETE FROM s3tablesbucket.investments.`holdings`");
         log.info("S3 Table POC - Writing {} records started", holdingsList.size());
         holdings.writeTo("s3tablesbucket.investments.`holdings`").append();
         log.info("S3 Table POC - Writing {} records finished", holdingsList.size());
