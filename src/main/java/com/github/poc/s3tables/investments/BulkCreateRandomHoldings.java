@@ -76,7 +76,7 @@ public class BulkCreateRandomHoldings {
         sparkSession.sql("DELETE FROM s3tablesbucket.investments.`holdings`");
         log.info("S3 Table POC - Writing 25 million started");
         holdings.writeTo("s3tablesbucket.investments.`holdings`")
-                .option("batchsize", "2500000")
+                .option("batchsize", "100000")
                 .append();
         log.info("S3 Table POC - Writing 25 million finished");
     }
