@@ -60,6 +60,8 @@ public class BulkCreateRandomHoldings {
             }
         }
 
+        log.info("S3 Table POC - Populating 25 million sized array finished");
+
         StructType holdingSchema = new StructType()
                 .add("holder", DataTypes.StringType)
                 .add("stockname", DataTypes.StringType)
@@ -69,7 +71,11 @@ public class BulkCreateRandomHoldings {
                 holdingsList, holdingSchema
         );
 
+        log.info("S3 Table POC - Creating a dataset of 25 million finished");
+
         sparkSession.sql("DELETE FROM s3tablesbucket.investments.`holdings`");
+        log.info("S3 Table POC - Writing 25 million started");
         holdings.writeTo("s3tablesbucket.investments.`holdings`").append();
+        log.info("S3 Table POC - Writing 25 million finished");
     }
 }
