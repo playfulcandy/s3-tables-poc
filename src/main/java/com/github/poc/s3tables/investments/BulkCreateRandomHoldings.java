@@ -19,16 +19,16 @@ import static com.github.poc.s3tables.investments.utils.SparkUtils.startSession;
 public class BulkCreateRandomHoldings {
     public static void main(String[] args) throws NoSuchTableException {
         SparkSession sparkSession = startSession("s3Test");
-        Dataset<Row> stocks = createDataset(
-                sparkSession,
-                "stock",
-                1000
-        );
-        Dataset<Row> usernames = createDataset(
-                sparkSession,
-                "username",
-                100000
-        );
+        Dataset<Row> stocks = sparkSession.sql("""
+                SELECT
+                    name AS stock
+                FROM s3tablesbucket.investments.`stocks`
+        """);
+        Dataset<Row> usernames = sparkSession.sql("""
+                SELECT
+                    username
+                FROM s3tablesbucket.investments.`accounts`
+        """);
         List<String> usernameList = usernames.collectAsList()
                 .stream()
                 .map(row -> row.getString(row.fieldIndex("username")))
@@ -38,10 +38,10 @@ public class BulkCreateRandomHoldings {
                 .map(row -> row.getString(row.fieldIndex("stock")))
                 .toList();
 
-        List<Row> holdingsList = new ArrayList<>(usernameList.size() * 15);
+        List<Row> holdingsList = new ArrayList<>(usernameList.size() * 25);
 
         for (String holder : usernameList) {
-            Set<String> selected = getRandomSubset(15, stockList);
+            Set<String> selected = getRandomSubset(25, stockList);
             for (String stockName : selected) {
                 Integer amountHeld = 20 + ((int) (Math.random() * 150));
 

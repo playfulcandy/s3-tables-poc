@@ -19,7 +19,7 @@ public class BulkCreateRandomAccounts {
         Dataset<Row> usernames = createDataset(
                 sparkSession,
                 "username",
-                100000
+                1000000
         );
         sparkSession.udf().register(
                 "password",
