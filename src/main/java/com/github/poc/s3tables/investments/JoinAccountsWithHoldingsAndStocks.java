@@ -35,13 +35,13 @@ public class JoinAccountsWithHoldingsAndStocks {
 
         results = results.withColumn("report_time", current_timestamp());
 
-        log.info("S3 Table POC - Appending twenty million rows started");
+        log.info("S3 Table POC - Dataset Write Started");
 
         results.writeTo("s3tablesbucket.investments.reports")
                 .option("batchsize", "100000")
                 .append();
 
-        log.info("S3 Table POC - Appending twenty million rows complete");
+        log.info("S3 Table POC - Dataset Write Complete");
 
         log.info("S3 Table POC - Final count of output table: {}",
                 countNumRowsInOutput(spark));
