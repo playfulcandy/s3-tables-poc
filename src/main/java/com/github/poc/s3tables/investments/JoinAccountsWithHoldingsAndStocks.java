@@ -1,5 +1,6 @@
 package com.github.poc.s3tables.investments;
 
+import com.github.poc.s3tables.investments.utils.MemoryUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -12,6 +13,8 @@ import static org.apache.spark.sql.functions.current_timestamp;
 @Slf4j
 public class JoinAccountsWithHoldingsAndStocks {
     public static void main(String[] args) throws NoSuchTableException {
+        MemoryUtils.checkHeapMemory();
+
         SparkSession spark = startSession("s3Test");
 
         log.info("S3 Table POC - Reads with Left Join Started");
@@ -34,7 +37,9 @@ public class JoinAccountsWithHoldingsAndStocks {
 
         log.info("S3 Table POC - Appending twenty million rows started");
 
-        results.writeTo("s3tablesbucket.investments.reports").append();
+        results.writeTo("s3tablesbucket.investments.reports")
+                .option("batchsize", "100000")
+                .append();
 
         log.info("S3 Table POC - Appending twenty million rows complete");
     }
