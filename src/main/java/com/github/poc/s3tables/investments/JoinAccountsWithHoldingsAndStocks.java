@@ -47,13 +47,13 @@ public class JoinAccountsWithHoldingsAndStocks {
                 countNumRowsInOutput(spark));
     }
 
-    private static int countNumRowsInOutput(SparkSession spark) {
+    private static long countNumRowsInOutput(SparkSession spark) {
         Dataset<Row> datasetOfCount = spark.sql("""
                 SELECT
                     COUNT(*) AS NUM_ROWS
                 FROM s3tablesbucket.investments.`reports`
         """);
         Row rowOfCount = datasetOfCount.collectAsList().get(0);
-        return rowOfCount.getInt(rowOfCount.fieldIndex("NUM_ROWS"));
+        return rowOfCount.getLong(rowOfCount.fieldIndex("NUM_ROWS"));
     }
 }
