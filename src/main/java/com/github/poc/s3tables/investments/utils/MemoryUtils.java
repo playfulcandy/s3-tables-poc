@@ -9,7 +9,7 @@ import java.lang.management.MemoryMXBean;
 public class MemoryUtils {
     public static void checkHeapMemory() {
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-        long maxMemoryInMb = memoryBean.getHeapMemoryUsage().getMax();
-        log.info("S3 Table POC - Maximum Heap Memory Allocated: {}", maxMemoryInMb);
+        long usableMemoryInBytes = memoryBean.getHeapMemoryUsage().getCommitted();
+        log.info("S3 Table POC - Maximum Heap Memory Allocated: {}", usableMemoryInBytes);
     }
 }
