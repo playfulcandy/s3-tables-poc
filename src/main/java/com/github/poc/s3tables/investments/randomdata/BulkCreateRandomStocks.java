@@ -1,4 +1,4 @@
-package com.github.poc.s3tables.investments;
+package com.github.poc.s3tables.investments.randomdata;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -8,27 +8,28 @@ import org.apache.spark.sql.catalyst.analysis.NoSuchTableException;
 import org.apache.spark.sql.types.DataTypes;
 
 import static com.github.poc.s3tables.investments.utils.DatasetCreator.createDataset;
-import static com.github.poc.s3tables.investments.utils.RandomUtils.createRandomAlphaNumeric;
+import static com.github.poc.s3tables.investments.utils.RandomUtils.createRandomPrice;
 import static com.github.poc.s3tables.investments.utils.SparkUtils.startSession;
 import static org.apache.spark.sql.functions.callUDF;
 
-public class BulkCreateRandomAccounts {
+public class BulkCreateRandomStocks {
 
     public static void main(String[] args) throws NoSuchTableException {
         SparkSession sparkSession = startSession("s3Test");
-        Dataset<Row> usernames = createDataset(
+        Dataset<Row> stocks = createDataset(
                 sparkSession,
-                "username",
-                1000000
+                "stock",
+                1000
         );
+        stocks = stocks.withColumnRenamed("stock", "name");
         sparkSession.udf().register(
-                "password",
-                (UDF0<?>) () -> createRandomAlphaNumeric(15),
-                DataTypes.StringType
+                "price",
+                (UDF0<?>) () -> createRandomPrice(100.0, 1000.0),
+                DataTypes.DoubleType
         );
-        Dataset<Row> accounts = usernames.withColumn("password", callUDF("password"));
+        stocks = stocks.withColumn("price", callUDF("price"));
 
-        sparkSession.sql("DELETE FROM s3tablesbucket.investments.`accounts`");
-        accounts.writeTo("s3tablesbucket.investments.`accounts`").append();
+        sparkSession.sql("DELETE FROM s3tablesbucket.investments.`stocks`");
+        stocks.writeTo("s3tablesbucket.investments.`stocks`").append();
     }
 }

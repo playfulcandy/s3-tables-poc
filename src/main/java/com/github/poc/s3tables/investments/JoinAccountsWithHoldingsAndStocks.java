@@ -33,11 +33,11 @@ public class JoinAccountsWithHoldingsAndStocks {
 
         log.info("S3 Table POC - Reads with Left Join Complete");
 
-        results = results.withColumn("report_time", current_timestamp());
+        results = results.withColumn("snapshot_time", current_timestamp());
 
         log.info("S3 Table POC - Dataset Write Started");
 
-        results.writeTo("s3tablesbucket.investments.reports")
+        results.writeTo("s3tablesbucket.investments.snapshots")
                 .option("batchsize", "100000")
                 .append();
 
@@ -51,7 +51,7 @@ public class JoinAccountsWithHoldingsAndStocks {
         Dataset<Row> datasetOfCount = spark.sql("""
                 SELECT
                     COUNT(*) AS NUM_ROWS
-                FROM s3tablesbucket.investments.`reports`
+                FROM s3tablesbucket.investments.`snapshots`
         """);
         Row rowOfCount = datasetOfCount.collectAsList().get(0);
         return rowOfCount.getLong(rowOfCount.fieldIndex("NUM_ROWS"));

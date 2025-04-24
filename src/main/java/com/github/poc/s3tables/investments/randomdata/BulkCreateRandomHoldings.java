@@ -1,4 +1,4 @@
-package com.github.poc.s3tables.investments;
+package com.github.poc.s3tables.investments.randomdata;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.sql.Dataset;
