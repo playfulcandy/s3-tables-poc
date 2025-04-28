@@ -8,7 +8,7 @@ import org.apache.spark.sql.SparkSession;
 import static com.github.poc.s3tables.investments.utils.SparkUtils.startSession;
 
 @Slf4j
-public class SqlRunner {
+public class TableChecker {
     public static void main(String[] args) {
         if (args.length == 0) {
             log.info("No Args");
@@ -17,10 +17,10 @@ public class SqlRunner {
 
         SparkSession spark = startSession("s3Test");
 
-        for (String sql : args) {
-            sql = sql.replaceAll("SPACE_TEXT", " ");
-            log.info("Running SQL: {}", sql);
-            Dataset<Row> result = spark.sql(sql);
+        for (String table : args) {
+            table = table.replaceAll("SPACE_TEXT", " ");
+            log.info("Checking: {}", table);
+            Dataset<Row> result = spark.table(table);
             result.show();
         }
 
